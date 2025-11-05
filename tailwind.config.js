@@ -8,8 +8,23 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["var(--font-geist-sans)", "system-ui", "sans-serif"],
-        mono: ["var(--font-geist-mono)", "monospace"],
+        sans: [
+          '"Inter"',
+          "-apple-system",
+          "BlinkMacSystemFont",
+          '"Segoe UI"',
+          "Roboto",
+          "sans-serif",
+        ],
+        mono: [
+          "ui-monospace",
+          "SFMono-Regular",
+          '"SF Mono"',
+          "Menlo",
+          "Consolas",
+          '"Liberation Mono"',
+          "monospace",
+        ],
       },
     },
   },

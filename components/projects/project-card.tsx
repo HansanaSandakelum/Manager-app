@@ -1,43 +1,63 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import { Trash2, Edit2, Users } from "lucide-react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import type { Project } from "@/types"
-import { apiDelete } from "@/lib/api-client"
+import { useState } from "react";
+import Link from "next/link";
+import { Trash2, Edit2, Users } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import type { Project } from "@/types";
+import { apiDelete } from "@/lib/api-client";
+import EditProjectModal from "./edit-project-modal";
 
 interface ProjectCardProps {
-  project: Project
-  onRefresh: () => void
+  project: Project;
+  onRefresh: () => void;
 }
 
 export default function ProjectCard({ project, onRefresh }: ProjectCardProps) {
-  const [isDeleting, setIsDeleting] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   const handleDelete = async () => {
     if (confirm("Are you sure you want to delete this project?")) {
       try {
-        setIsDeleting(true)
-        await apiDelete(`/projects/${project._id}`)
-        onRefresh()
+        setIsDeleting(true);
+        await apiDelete(`/projects/${project._id}`);
+        onRefresh();
       } catch (err) {
-        alert(err instanceof Error ? err.message : "Failed to delete project")
+        alert(err instanceof Error ? err.message : "Failed to delete project");
       } finally {
-        setIsDeleting(false)
+        setIsDeleting(false);
       }
     }
-  }
+  };
+
+  const handleEditSuccess = () => {
+    setShowEditModal(false);
+    onRefresh();
+  };
 
   return (
     <Card className="bg-slate-800 border-slate-700 hover:border-slate-600 transition-colors">
       <CardHeader>
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <Link href={`/dashboard/projects/${project._id}`}>
-              <CardTitle className="text-white hover:text-blue-400 cursor-pointer">{project.name}</CardTitle>
+            <Link
+              href={`/dashboard/projects/${project._id}`}
+              className="cursor-pointer"
+            >
+              <CardTitle className="text-white hover:text-blue-400">
+                {project.name}
+              </CardTitle>
             </Link>
-            <CardDescription className="text-slate-400">{project.description}</CardDescription>
+            <CardDescription className="text-slate-400">
+              {project.description}
+            </CardDescription>
           </div>
         </div>
       </CardHeader>
@@ -45,10 +65,15 @@ export default function ProjectCard({ project, onRefresh }: ProjectCardProps) {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-slate-400">
             <Users size={16} />
-            <span className="text-sm">{project.teamMembers.length} members</span>
+            <span className="text-sm">
+              {project.teamMembers.length} members
+            </span>
           </div>
           <div className="flex gap-2">
-            <button className="p-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded transition-colors">
+            <button
+              onClick={() => setShowEditModal(true)}
+              className="p-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded transition-colors"
+            >
               <Edit2 size={16} />
             </button>
             <button
@@ -61,6 +86,14 @@ export default function ProjectCard({ project, onRefresh }: ProjectCardProps) {
           </div>
         </div>
       </CardContent>
+
+      {showEditModal && (
+        <EditProjectModal
+          project={project}
+          onClose={() => setShowEditModal(false)}
+          onSuccess={handleEditSuccess}
+        />
+      )}
     </Card>
-  )
+  );
 }

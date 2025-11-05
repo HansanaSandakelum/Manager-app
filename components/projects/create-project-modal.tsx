@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import type { Project } from "@/types";
 import { apiPost } from "@/lib/api-client";
+import { useNotifications } from "@/components/notifications/notification-context";
 
 interface CreateProjectModalProps {
   onClose: () => void;
@@ -23,6 +24,7 @@ export default function CreateProjectModal({
   const [description, setDescription] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const { addNotification } = useNotifications();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,6 +35,11 @@ export default function CreateProjectModal({
       return;
     }
 
+    if (!description.trim()) {
+      setError("Project description is required");
+      return;
+    }
+
     try {
       setIsLoading(true);
       const response = await apiPost<{ project: Project }>("/projects", {
@@ -40,8 +47,28 @@ export default function CreateProjectModal({
         description,
       });
       onSuccess(response.project);
+
+      // Add success notification
+      addNotification({
+        type: "success",
+        title: "Project Created",
+        message: `Project "${name}" has been created successfully`,
+        operation: "create",
+        entity: "project",
+        entityId: response.project._id,
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create project");
+
+      // Add error notification
+      addNotification({
+        type: "error",
+        title: "Project Creation Failed",
+        message:
+          err instanceof Error ? err.message : "Failed to create project",
+        operation: "create",
+        entity: "project",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -92,6 +119,7 @@ export default function CreateProjectModal({
                 onChange={(e) => setDescription(e.target.value)}
                 className="w-full p-2 border border-slate-600 bg-slate-900/50 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 rows={3}
+                required
               />
             </div>
 

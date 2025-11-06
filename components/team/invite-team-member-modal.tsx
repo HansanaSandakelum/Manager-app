@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/card";
 import type { User, Project } from "@/types";
 import { apiPost, apiGet } from "@/lib/api-client";
 import { useNotifications } from "@/components/notifications/notification-context";
+import { useAuth } from "@/contexts/auth-context";
 
 interface InviteTeamMemberModalProps {
   onClose: () => void;
@@ -27,6 +28,7 @@ export default function InviteTeamMemberModal({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const { addNotification } = useNotifications();
+  const { user: currentUser } = useAuth();
 
   useEffect(() => {
     fetchProjects();
@@ -47,10 +49,8 @@ export default function InviteTeamMemberModal({
       const data = await apiGet<{ projects: Project[] }>("/projects");
       const allProjects = data.projects || [];
 
-      // Get current user from localStorage
-      const userStr = localStorage.getItem("user");
-      if (userStr) {
-        const currentUser = JSON.parse(userStr);
+      // Get current user from auth context
+      if (currentUser) {
         // Filter to only show projects owned by current user
         const ownedProjects = allProjects.filter((project) => {
           // Handle both string owner ID and populated owner object

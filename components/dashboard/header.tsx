@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { Settings, LogOut } from "lucide-react";
 import type { User } from "@/types";
 import NotificationDropdown from "@/components/notifications/notification-dropdown";
+import { useAuth } from "@/contexts/auth-context";
 
 interface HeaderProps {
   user: User | null;
@@ -11,11 +12,10 @@ interface HeaderProps {
 
 export default function Header({ user }: HeaderProps) {
   const router = useRouter();
+  const { logout } = useAuth();
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    router.push("/");
+    logout();
   };
 
   return (

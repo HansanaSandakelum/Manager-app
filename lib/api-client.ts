@@ -1,20 +1,27 @@
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001/api";
+
+let authToken: string | null = null;
+
+export function setAuthToken(token: string | null) {
+  authToken = token;
+}
+
+export function getAuthToken(): string | null {
+  return authToken;
+}
 
 export async function apiCall<T>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> {
-  const token =
-    typeof window !== "undefined" ? localStorage.getItem("token") : null;
-
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     ...(options.headers as Record<string, string>),
   };
 
-  if (token) {
-    headers.Authorization = `Bearer ${token}`;
+  if (authToken) {
+    headers.Authorization = `Bearer ${authToken}`;
   }
 
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
@@ -23,9 +30,9 @@ export async function apiCall<T>(
   });
 
   if (response.status === 401) {
+    // Token is invalid or expired
+    authToken = null;
     if (typeof window !== "undefined") {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
       window.location.href = "/";
     }
   }

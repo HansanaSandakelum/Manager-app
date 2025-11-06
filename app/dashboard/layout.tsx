@@ -1,42 +1,36 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
-import Sidebar from "@/components/dashboard/sidebar"
-import Header from "@/components/dashboard/header"
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import Sidebar from "@/components/dashboard/sidebar";
+import Header from "@/components/dashboard/header";
+import { useAuth } from "@/contexts/auth-context";
 
 export default function DashboardLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
-  const router = useRouter()
-  const [isLoading, setIsLoading] = useState(true)
-  const [user, setUser] = useState(null)
+  const router = useRouter();
+  const { isAuthenticated, user } = useAuth();
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem("token")
-    const userData = localStorage.getItem("user")
-
-    if (!token) {
-      router.push("/")
-      return
+    if (!isAuthenticated) {
+      router.push("/");
+      return;
     }
-
-    if (userData) {
-      setUser(JSON.parse(userData))
-    }
-    setIsLoading(false)
-  }, [router])
+    setIsLoading(false);
+  }, [isAuthenticated, router]);
 
   if (isLoading) {
     return (
       <div className="min-h-screen bg-slate-900 flex items-center justify-center">
         <div className="text-slate-400">Loading...</div>
       </div>
-    )
+    );
   }
 
   return (
@@ -44,8 +38,10 @@ export default function DashboardLayout({
       <Sidebar />
       <div className="flex-1 flex flex-col">
         <Header user={user} />
-        <main className="flex-1 overflow-auto bg-slate-950 p-6">{children}</main>
+        <main className="flex-1 overflow-auto bg-slate-950 p-6">
+          {children}
+        </main>
       </div>
     </div>
-  )
+  );
 }

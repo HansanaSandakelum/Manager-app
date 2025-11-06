@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/next";
 import { NotificationProvider } from "@/components/notifications/notification-context";
+import { AuthProvider } from "@/contexts/auth-context";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -24,7 +25,9 @@ export default function RootLayout({
         className="font-sans antialiased"
         style={{ fontFamily: "'Inter', sans-serif" }}
       >
-        <NotificationProvider>{children}</NotificationProvider>
+        <AuthProvider>
+          <NotificationProvider>{children}</NotificationProvider>
+        </AuthProvider>
         <Analytics />
       </body>
     </html>
